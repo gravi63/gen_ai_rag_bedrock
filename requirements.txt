@@ -1,0 +1,5 @@
+boto3>=1.42.0
+botocore>=1.41.6
+numpy
+tiktoken
+tenacity
