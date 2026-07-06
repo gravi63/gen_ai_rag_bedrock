@@ -1,0 +1,19 @@
+# Copy this file to terraform.tfvars and fill in your values.
+# terraform.tfvars is git-ignored — never commit real values.
+
+aws_region   = "us-east-1"
+project_name = "rag-bedrock"
+environment  = "dev"
+
+# Set to true for FedRAMP / HIPAA workloads
+enable_kms = false
+
+# Enable Bedrock invocation logging to CloudWatch
+enable_bedrock_logging = true
+log_retention_days     = 30
+
+# Optional extra tags
+tags = {
+  Owner      = "your-team"
+  CostCenter = "engineering"
+}
