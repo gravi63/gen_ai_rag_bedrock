@@ -4,7 +4,7 @@ End-to-end RAG pipeline on AWS using Bedrock (Titan embeddings + Claude), S3 Vec
 
 ## Architecture Diagram
 
-<img width="1472" height="1200" alt="image" src="https://github.com/user-attachments/assets/fe65ad19-ec75-4ea7-afa1-fcc5a3c7ceda" />
+<img width="1472" height="1280" alt="image" src="https://github.com/user-attachments/assets/9c12de12-aa66-4fae-8f81-95428eb99f91" />
 
 ## Project structure
 
