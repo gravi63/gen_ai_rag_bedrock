@@ -1,11 +1,11 @@
 # Bedrock RAG Pipeline
 
-End-to-end RAG using AWS S3 Vectors + Bedrock Titan Embeddings + Bedrock generation models.
+End-to-end RAG pipeline on AWS using Bedrock (Titan embeddings + Claude), S3 Vectors as the vector store, and Terraform for IAM and observability — fully modular Python with concurrent embedding, retry logic, and multi-tenant metadata filtering.
 
 ## Project structure
 
 ```
-rag_bedrock/
+gen_ai_rag_bedrock/
 ├── main.py                  # entry point — run ingest or query
 ├── requirements.txt
 ├── config/
@@ -26,12 +26,21 @@ rag_bedrock/
 
 ## Quickstart
 
-### 1. Install dependencies
+### 1. Run Terraform to create IAM and Log groups
+```bash
+cd gen_ai_rag_bedrock/terraform
+cp terraform.tfvars.example terraform.tfvars
+# edit terraform.tfvars with your values
+terraform init
+terraform apply
+```
+
+### 2. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Configure AWS credentials
+### 3. Configure AWS credentials
 ```bash
 aws configure
 # or use IAM role / instance profile in SageMaker / EC2
@@ -42,6 +51,9 @@ aws configure
 export AWS_REGION=us-east-1
 export VECTOR_BUCKET_NAME=my-rag-bucket        # optional — auto-generated if not set
 export BEDROCK_GENERATION_MODEL_ID=us.anthropic.claude-haiku-4-5-20251001-v1:0
+export AWS_ROLE_ARN="arn:aws:iam::123456789:role/rag-bedrock-dev-pipeline-role"
+export KMS_KEY_ARN=""  # only if enable_kms = true
+export CLOUDWATCH_LOG_GROUP="/app/rag-bedrock-dev/pipeline"
 ```
 
 ### 4. Run ingest (chunk → embed → index)
@@ -77,16 +89,3 @@ python main.py query
   "Resource": "*"
 }
 ```
-
-## Key fixes vs original notebook
-
-| Issue | Original | Fixed |
-|---|---|---|
-| Embedding retry | No retry — one throttle kills the run | tenacity exponential backoff |
-| Embedding concurrency | Sequential loop | ThreadPoolExecutor (5 workers) |
-| Embedding checkpoint | None — restart from zero | Checkpoint to `.embed_checkpoint.pkl` |
-| Token counting | `1 token ≈ 4 chars` proxy | tiktoken `cl100k_base` tokenizer |
-| Global mutation | `global GENERATION_MODEL_ID` | Returned from preflight, passed explicitly |
-| Tenant isolation | Filter accepted from caller | Injected from auth context only |
-| Observability | `print()` only | `logging` throughout + token usage from response |
-| Jupyter dependency | `IPython.display` everywhere | Plain Python — runs in VSCode / terminal |
